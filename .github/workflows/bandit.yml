@@ -1,0 +1,52 @@
+name: Bandit Security Scan
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  bandit:
+    name: Run Bandit Security Scanner
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Check for Python files
+        id: check-python
+        run: |
+          if find . -type f -name "*.py" -not -path "./.git/*" | grep -q .; then
+            echo "has_python=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_python=false" >> "$GITHUB_OUTPUT"
+          fi
+      
+      - name: Install Bandit
+        if: steps.check-python.outputs.has_python == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit[toml]
+      
+      - name: Run Bandit scan
+        if: steps.check-python.outputs.has_python == 'true'
+        uses: shundor/python-bandit-scan@ab1d87dfccc5a0ffab88be3aaac6ffe35c10d6cd
+        with:
+          # Do not force exit 0 - let Bandit fail CI when security issues are found
+          exit_zero: false
+          # Github token of the repository (automatically created by Github)
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information.
+      
+      - name: No Python files found
+        if: steps.check-python.outputs.has_python == 'false'
+        run: echo "No Python files found in repository, skipping Bandit scan"
