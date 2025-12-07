@@ -15,11 +15,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      
       - name: Check for Python files
         id: check-python
         run: |
@@ -28,6 +23,12 @@ jobs:
           else
             echo "has_python=false" >> "$GITHUB_OUTPUT"
           fi
+      
+      - name: Set up Python
+        if: steps.check-python.outputs.has_python == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
       
       - name: Install dependencies
         if: steps.check-python.outputs.has_python == 'true'
@@ -41,7 +42,7 @@ jobs:
       - name: Run Pylint
         if: steps.check-python.outputs.has_python == 'true'
         run: |
-          find . -type f -name "*.py" -not -path "./.git/*" | xargs pylint
+          find . -type f -name "*.py" -not -path "./.git/*" | xargs -r pylint
       
       - name: No Python files found
         if: steps.check-python.outputs.has_python == 'false'

@@ -14,11 +14,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
       
       - name: Check for Python files
         id: check-python
@@ -28,6 +23,12 @@ jobs:
           else
             echo "has_python=false" >> "$GITHUB_OUTPUT"
           fi
+        
+      - name: Set up Python
+        if: steps.check-python.outputs.has_python == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
       
       - name: Install Bandit
         if: steps.check-python.outputs.has_python == 'true'
