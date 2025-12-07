@@ -10,18 +10,15 @@ jobs:
   bandit:
     name: Run Bandit Security Scanner
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.10", "3.11"]
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.11"
       
       - name: Check for Python files
         id: check-python
@@ -40,7 +37,7 @@ jobs:
       
       - name: Run Bandit scan
         if: steps.check-python.outputs.has_python == 'true'
-        uses: shundor/python-bandit-scan@ab1d87dfccc5a0ffab88be3aaac6ffe35c10d6cd
+        uses: shundor/python-bandit-scan@ab1d87dfccc5a0ffab88be3aaac6ffe35c10d6cd # v9.3.0
         with:
           # Do not force exit 0 - let Bandit fail CI when security issues are found
           exit_zero: false
