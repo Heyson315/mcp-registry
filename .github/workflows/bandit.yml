@@ -32,12 +32,6 @@ jobs:
         with:
           python-version: "3.11"
       
-      - name: Install Bandit
-        if: steps.check-python.outputs.has_python == 'true'
-        run: |
-          python -m pip install --upgrade pip
-          pip install bandit[toml]
-      
       - name: Run Bandit scan
         if: steps.check-python.outputs.has_python == 'true'
         uses: shundor/python-bandit-scan@ab1d87dfccc5a0ffab88be3aaac6ffe35c10d6cd # v9.3.0
