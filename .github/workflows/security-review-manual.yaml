@@ -56,6 +56,9 @@ jobs:
           owner: docker
           repositories: ${{ steps.parse-repo.outputs.name }}
 
+      - name: Mask token in logs
+        run: echo "::add-mask::${{ steps.app-token.outputs.token }}"
+
       - name: Trigger private workflow
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
